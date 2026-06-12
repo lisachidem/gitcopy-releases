@@ -10,8 +10,8 @@ TMP_DIR=$(mktemp -d)
 
 echo "Fetching latest release info..."
 RELEASE_JSON=$(curl -sf "https://api.github.com/repos/$REPO/releases/latest")
-VERSION=$(echo "$RELEASE_JSON" | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\(.*\)".*/\1/')
-ZIP_URL=$(echo "$RELEASE_JSON" | grep '"browser_download_url"' | grep 'arm64-mac.zip"' | sed 's/.*"browser_download_url": *"\(.*\)".*/\1/')
+VERSION=$(echo "$RELEASE_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'])")
+ZIP_URL=$(echo "$RELEASE_JSON" | python3 -c "import sys,json; r=json.load(sys.stdin); print(next(a['browser_download_url'] for a in r['assets'] if a['name'].endswith('arm64-mac.zip')))")
 
 if [ -z "$ZIP_URL" ]; then
   echo "Could not find mac download URL."
